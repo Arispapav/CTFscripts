@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import sys
+
+def xor_decrypt(xor_key, encrypted_hex):
+    """
+    Decrypts a string that was XOR encrypted.
+    
+    Parameters:
+        xor_key (int): The XOR key (e.g., 0x9ce8).
+        encrypted_hex (list): A list of hexadecimal values representing the encrypted string.
+    
+    Returns:
+        dict: A dictionary with the original bytes and original string.
+    """
+    # Split the XOR key into two bytes
+    key_bytes = [xor_key >> 8, xor_key & 0xFF]
+    
+    # Decrypt by applying XOR with alternating key bytes
+    original_bytes = [
+        encrypted_byte ^ key_bytes[i % len(key_bytes)]
+        for i, encrypted_byte in enumerate(encrypted_hex)
+    ]
+    
+    # Convert to string (if printable) or leave as '.'
+    original_string = ''.join(
+        chr(b) if 32 <= b <= 126 else '.' for b in original_bytes
+    )
+    
+    return {
+        "original_bytes": original_bytes,
+        "original_string": original_string
+    }
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: ./XOR.py <xor_key> <encrypted_hex>")
+        sys.exit(1)
+    
+    try:
+        # Read and parse XOR key
+        xor_key = int(sys.argv[1], 16)
+        
+        # Read and parse encrypted hex string
+        encrypted_hex = [int(x.strip(), 16) for x in sys.argv[2].split(',')]
+        
+        # Decrypt
+        result = xor_decrypt(xor_key, encrypted_hex)
+        
+        # Output the results
+        print("Original Bytes (Hex):", ' '.join(f"{b:02x}" for b in result["original_bytes"]))
+        print("Original String:", result["original_string"])
+    except ValueError as e:
+        print(f"Error: {e}")
+        print("Ensure the XOR key is a valid hex number and the encrypted hex values are comma-separated.")
+        sys.exit(1)
