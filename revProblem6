@@ -1,0 +1,21 @@
+# Original hex string
+original_string = [0x7a, 0x01, 0xcb, 0xd9, 0x6c, 0xaa, 0x6c, 0x03, 0xc3, 0x06, 0x68, 0xbe, 0x7d, 0x10, 0x1b, 0x0d, 0x70]
+
+# STEP 1: Swap indexes 3 and 14
+step1_string = original_string[:]
+step1_string[3], step1_string[14] = step1_string[14], step1_string[3]
+
+# STEP 2: XOR odds (1-based) with 0x9c and evens (1-based) with 0xe8
+step2_string = [
+    byte ^ 0x9c if (idx + 1) % 2 != 0 else byte ^ 0xe8
+    for idx, byte in enumerate(step1_string)
+]
+
+# STEP 3: XOR each byte with a repeating key sequence 
+keys = [0x89, 0x9e, 0x30]
+final_string = [
+    byte ^ keys[idx % 3]
+    for idx, byte in enumerate(step2_string)
+]
+
+print([hex(byte) for byte in final_string])
